@@ -1,0 +1,8 @@
+{
+  "name": "browseros-minimax-config",
+  "version": "1.0.0",
+  "description": "Generate BrowserOS-compatible config for MiniMax-M2.5",
+  "type": "module",
+  "bin": { "browseros-minimax-config": "./index.ts" },
+  "scripts": { "start": "bun run index.ts" }
+}

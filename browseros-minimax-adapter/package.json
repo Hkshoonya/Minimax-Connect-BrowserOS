@@ -1,0 +1,13 @@
+{
+  "name": "browseros-minimax-adapter",
+  "version": "1.0.0",
+  "description": "HTTP bridge that proxies BrowserOS requests to MiniMax-M2.5 API",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch run src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  }
+}
