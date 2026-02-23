@@ -140,6 +140,29 @@ In BrowserOS: **Settings → Add provider → MiniMax**
 
 ---
 
+## 🖥 Running BrowserOS + Development Server
+
+To run the **installed BrowserOS** with the **development server** (MiniMax integration):
+
+1. **Launch BrowserOS with CDP** (use port 9222 — port 9000 is used by BrowserOS UI):
+   ```powershell
+   .\scripts\run-browseros.ps1
+   ```
+   Or manually: `chrome.exe --remote-debugging-port=9222`
+
+2. **Start the server:**
+   ```bash
+   cd browseros-agent/apps/server
+   $env:BROWSEROS_CDP_PORT=9222
+   bun --env-file=.env.development start
+   ```
+
+3. **Verify:** Open http://localhost:9100/health → `{"status":"ok"}`
+
+The server connects to BrowserOS via CDP and exposes chat/MCP at port 9100.
+
+---
+
 ## 📁 Repository Structure
 
 ```
@@ -147,6 +170,7 @@ Minimax-Connect-BrowserOS/
 ├── browseros-minimax-config/    # Config generator CLI
 ├── browseros-minimax-adapter/   # HTTP proxy service
 ├── browseros-agent/             # Fork with MiniMax provider
+├── scripts/                     # run-browseros.ps1 launcher
 ├── docs/plans/                  # Implementation plans
 └── README.md
 ```
