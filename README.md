@@ -1,50 +1,160 @@
-# BrowserOS ↔ MiniMax-M2.5 Integration
+<div align="center">
 
-Tools to connect BrowserOS agents to the MiniMax-M2.5 API.
+# 🚀 Minimax Connect BrowserOS
 
-## Components
+**Connect [BrowserOS](https://www.browseros.com/) agents to [MiniMax-M2.5](https://platform.minimax.io/) — the open-source AI browser meets peak-performance LLMs.**
 
-### 1. Config Generator (`browseros-minimax-config`)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+</div>
+
+---
+
+## 📖 Description
+
+**Minimax Connect BrowserOS** is a toolkit that bridges [BrowserOS](https://www.browseros.com/) — the open-source agentic browser — with [MiniMax-M2.5](https://platform.minimax.io/) API. Use MiniMax's 204K context, 60+ tps throughput, and strong tool-calling in your BrowserOS workflows.
+
+Three integration paths: **config generator**, **HTTP adapter**, and **native provider** — pick what fits your setup.
+
+---
+
+## 🏗 Architecture
+
+```mermaid
+flowchart TB
+    subgraph User["👤 User"]
+        BrowserOS[BrowserOS Browser]
+        AgentUI[Agent UI / Chat]
+    end
+
+    subgraph Integration["🛠 Integration Options"]
+        ConfigGen["1️⃣ Config Generator<br/>JSON for settings"]
+        Adapter["2️⃣ Adapter Service<br/>HTTP Proxy :3100"]
+        Native["3️⃣ Native Provider<br/>MiniMax in picker"]
+    end
+
+    subgraph Backend["Backend"]
+        Server[BrowserOS Server<br/>Vercel AI SDK]
+    end
+
+    subgraph MiniMax["MiniMax API"]
+        API["https://api.minimax.io/anthropic<br/>MiniMax-M2.5"]
+    end
+
+    BrowserOS --> AgentUI
+    AgentUI --> Integration
+    ConfigGen --> Server
+    Adapter --> Server
+    Native --> Server
+    Server --> API
+```
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as Agent UI
+    participant S as BrowserOS Server
+    participant M as MiniMax API
+
+    U->>UI: Describe task
+    UI->>S: Chat request (provider: minimax)
+    S->>S: createMinimaxModel(baseURL, apiKey)
+    S->>M: Anthropic-compatible request
+    M->>S: Streaming response
+    S->>UI: SSE stream
+    UI->>U: Agent actions + reply
+```
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| **Config Generator** | Output BrowserOS-compatible JSON for MiniMax (global & China regions) |
+| **Adapter Service** | HTTP proxy for setups where direct provider config isn't available |
+| **Native Provider** | MiniMax as first-class provider in BrowserOS-agent with full UI support |
+| **Anthropic-Compatible** | Uses `@ai-sdk/anthropic` with base URL override — no custom client |
+| **204K Context** | Full MiniMax-M2.5 context window (204,800 tokens) |
+
+---
+
+## 📦 Components
+
+### 1️⃣ Config Generator (`browseros-minimax-config`)
 
 Generates BrowserOS-compatible provider JSON for MiniMax-M2.5.
 
 ```bash
 cd browseros-minimax-config
-bun run index.ts --api-key=YOUR_KEY --region=global
-# Or save: bun run index.ts --output=minimax-config.json
+node index.ts                           # Print to stdout
+node index.ts --api-key=YOUR_KEY        # With API key
+node index.ts --region=china            # China endpoint
+node index.ts --output=minimax.json     # Save to file
 ```
 
-### 2. Adapter Service (`browseros-minimax-adapter`)
+### 2️⃣ Adapter Service (`browseros-minimax-adapter`)
 
-HTTP proxy that forwards requests to MiniMax. Use when BrowserOS cannot add MiniMax directly.
+HTTP proxy that forwards BrowserOS requests to MiniMax. Use when you can't add MiniMax as a direct provider.
 
 ```bash
 cd browseros-minimax-adapter
 npm install
 MINIMAX_API_KEY=your_key npm run start
-# Configure BrowserOS: add OpenAI Compatible provider with baseUrl http://localhost:3100
 ```
 
-### 3. BrowserOS-Agent Integration (`browseros-agent`)
+Then in BrowserOS: add **OpenAI Compatible** provider with base URL `http://localhost:3100` and model `MiniMax-M2.5`.
 
-MiniMax added as a first-class provider in the BrowserOS-agent monorepo.
+### 3️⃣ BrowserOS-Agent Integration (`browseros-agent`)
 
-**Changes:**
-- `packages/shared`: MINIMAX in LLM_PROVIDERS
-- `apps/server`: createMinimaxModel in provider.ts
-- `apps/agent`: MiniMax in provider picker (types, templates, icons)
+MiniMax as a native provider with full Agent UI support.
 
-**Requirements:** Bun (project uses `workspace:*`)
+| Path | Change |
+|------|--------|
+| `packages/shared` | MINIMAX in `LLM_PROVIDERS` |
+| `apps/server` | `createMinimaxModel` in provider factory |
+| `apps/agent` | MiniMax in provider picker (templates, icons) |
+
+**Requires:** [Bun](https://bun.sh/)
 
 ```bash
 cd browseros-agent
 bun install
 bun run start:server
-# In BrowserOS: Settings → Add provider → MiniMax
 ```
 
-## Quick Start
+In BrowserOS: **Settings → Add provider → MiniMax**
+
+---
+
+## 🚀 Quick Start
 
 1. Get a [MiniMax API key](https://platform.minimax.io/user-center/basic-information/interface-key)
-2. Use the config generator to output settings, or run the adapter, or clone BrowserOS-agent and use the native MiniMax provider
-3. For China: use `--region=china` or `MINIMAX_BASE_URL=https://api.minimaxi.com/anthropic`
+2. Choose your integration:
+   - **Config** → Run generator, paste output into settings
+   - **Adapter** → Start proxy, add OpenAI Compatible provider
+   - **Native** → Use BrowserOS-agent with MiniMax in the picker
+3. **China region:** use `--region=china` or `MINIMAX_BASE_URL=https://api.minimaxi.com/anthropic`
+
+---
+
+## 📁 Repository Structure
+
+```
+Minimax-Connect-BrowserOS/
+├── browseros-minimax-config/    # Config generator CLI
+├── browseros-minimax-adapter/   # HTTP proxy service
+├── browseros-agent/             # Fork with MiniMax provider
+├── docs/plans/                  # Implementation plans
+└── README.md
+```
+
+---
+
+## 🔗 Links
+
+- [BrowserOS](https://www.browseros.com/) — Open-source agentic browser
+- [MiniMax Platform](https://platform.minimax.io/) — API keys & docs
+- [MiniMax M2.5 for AI Tools](https://platform.minimax.io/docs/guides/text-ai-coding-tools)
